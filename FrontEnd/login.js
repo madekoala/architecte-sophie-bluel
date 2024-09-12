@@ -19,12 +19,11 @@ form.addEventListener("submit", async (e) => {
     toggleLoading(true);
 
     // Envoie une requête POST à l'API pour se connecter avec les informations d'identification de l'utilisateur
-    const response = await fetch("http://localhost:5678/api-docs/", {
+    const response = await fetch("http://localhost:5678/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
-
     // Si la réponse est réussie
     if (response.ok) {
       const data = await response.json();
@@ -39,6 +38,7 @@ form.addEventListener("submit", async (e) => {
       }
     }
   } catch (error) {
+    console.log(error)
     // Gestion des erreurs réseau ou autres exceptions
     displayError("Erreur réseau. Veuillez vérifier votre connexion.");
   } finally {
@@ -68,7 +68,7 @@ function displayError(message) {
 
 // Fonction pour gérer l'affichage de l'indicateur de chargement
 function toggleLoading(isLoading) {
-  const submitButton = form.querySelector('button[type="submit"]');
+  const submitButton = document.querySelector('input[type="submit"]');
   if (isLoading) {
     submitButton.disabled = true;
     submitButton.innerText = "Connexion en cours...";
