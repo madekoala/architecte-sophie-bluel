@@ -46,7 +46,7 @@ function modalFlex() {
   }
 }
 
-// 5 Function affichage galérie modale 
+// 5 Function affichage galérie modale
 function showWorksInModal() {
   //Vide le contenu de la fenêtre modale
   worksContainer.innerHTML = "";
@@ -70,35 +70,40 @@ function showWorksInModal() {
     delButton.addEventListener("click", async (e) => {
       const figure = e.target.closest("figure");
       const id = figure.dataset.id;
-      const deleteCode = await confirmDelWork(id);
+      const isDelete = await confirmDelWork(id);
+console.log(isDelete)
+      if (isDelete) {
+        const deleteStatus = await delWork(id);
+        console.log(deleteStatus)
 
-      // chaque cas ... un code d'erreur différent
-      switch (deleteCode) {
-        case 204:
-          figure.remove();
-          const galleryFigure = document.querySelector("#figure-" + id);
-          galleryFigure.remove();
+        // chaque cas ... un code d'erreur différent
+        switch (deleteStatus) {
+          case 204:
+            figure.remove();
+            const galleryFigure = document.querySelector("#figure-" + id);
+            galleryFigure.remove();
 
-          // Permet de supp l'img dans le Set
-          for (const work of allWorks) {
-            if (work.id == id) {
-              allWorks.delete(work);
-              break;
+            // Permet de supp l'img dans le Set
+            for (const work of allWorks) {
+              if (work.id == id) {
+                allWorks.delete(work);
+                break;
+              }
             }
-          }
-          break;
-        case 401:
-          alert("accès non autorisé");
-          break;
-        case 500:
-          alert("problème de serveur, veuillez réesayez plus tard");
-          break;
-        case "abort":
-          alert("opération annulé");
-          break;
-        default:
-          alert("cas imprévu :" + deleteCode);
-          break;
+            break;
+          case 401:
+            alert("accès non autorisé");
+            break;
+          case 500:
+            alert("problème de serveur, veuillez réesayez plus tard");
+            break;
+          case "abort":
+            alert("opération annulé");
+            break;
+          default:
+            alert("cas imprévu :" + deleteStatus);
+            break;
+        }
       }
     });
 
@@ -130,7 +135,7 @@ async function init() {
       setLogoutButton();
       // ** Permet de selectionner les Cat ** //
       getSelectCategory();
-      // ** Permet de rajouter un Work ** //
+      // ** Permet d'ajouté un Work ** //
       initAddModale();
     } else {
       displayFilterButton();
@@ -319,7 +324,7 @@ function initAddModale() {
     let tempFile = e.target.files[0];
 
     // Définit les types de fichiers autorisés
-    const fileTypes = ["image/jpg", "image/png"];
+    const fileTypes = ["image/jpg", "image/jpeg", "image/png"];
     let testFormat = false;
 
     // Vérifie si le type de fichier sélectionné est autorisé
@@ -364,7 +369,7 @@ function initAddModale() {
       }
     } else {
       // Si le type de fichier n'est pas autorisé, affiche une alerte
-      return alert("ce format est incorrect PNJ/JPG attendu");
+      return alert("ce format est incorrect PNG/JPG attendu");
     }
   });
 
@@ -381,7 +386,7 @@ function initAddModale() {
     if (file != "" && upTitle != "") {
       modal2.style.display = `none`;
       modal1.style.display = `flex`;
-      alert("Votre projet à bien été rajouté ");
+      alert("Votre projet à bien été ajouté ");
       // Ajout du nouveau travail à la liste de travaux
       const newWork = await AddWork(formData);
       allWorks.add(newWork);
@@ -435,7 +440,7 @@ login.addEventListener("click", function () {
   if (token) {
     location.href = "http://" + location.hostname + ":5500/index.html";
     sessionStorage.removeItem("accessToken");
-    location.reload();
+    //location.reload();
   }
 });
 
@@ -472,11 +477,9 @@ async function AddWork(formData) {
     return response.json();
   }
 }
+
 // ** Confirmation pour suppression ** //
 async function confirmDelWork(workId) {
-  if (confirm("Êtes-vous sûr de vouloir supprimer ce projet ?")) {
-    const deleteStatus = await delWork(workId);
-    return deleteStatus;
-  }
+  return confirm("Êtes-vous sûr de vouloir supprimer ce projet ?");
 }
-//
+

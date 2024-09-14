@@ -1,4 +1,3 @@
-
 /* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
@@ -93,6 +92,7 @@ video {
   vertical-align: baseline;
   background: rgba(255, 254, 248, 1);
 }
+
 /* HTML5 display-role reset for older browsers */
 article,
 aside,
@@ -107,20 +107,25 @@ nav,
 section {
   display: block;
 }
+
 body {
   line-height: 1;
 }
+
 a {
   text-decoration: none;
 }
+
 ol,
 ul {
   list-style: none;
 }
+
 blockquote,
 q {
   quotes: none;
 }
+
 blockquote:before,
 blockquote:after,
 q:before,
@@ -128,10 +133,12 @@ q:after {
   content: "";
   content: none;
 }
+
 table {
   border-collapse: collapse;
   border-spacing: 0;
 }
+
 /** end reset css**/
 body {
   max-width: 1140px;
@@ -139,11 +146,13 @@ body {
   font-family: "Work Sans";
   font-size: 14px;
 }
+
 header {
   display: flex;
   justify-content: space-between;
   margin: 50px 0;
 }
+
 section {
   margin: 50px 0;
 }
@@ -169,11 +178,13 @@ h2 {
   font-size: 30px;
   color: #1d6154;
 }
+
 nav ul {
   display: flex;
   align-items: center;
   list-style-type: none;
 }
+
 nav a {
   padding: 0 25px 0 25px;
   font-size: 1.2em;
@@ -184,29 +195,37 @@ nav a {
 a:hover {
   font-weight: 600;
 }
+
 #introduction {
   display: flex;
   align-items: center;
+  margin-bottom: 130px;
 }
+
 #introduction figure {
   flex: 1;
   position: relative;
 }
+
 #introduction img {
   display: block;
   margin: auto;
   width: 80%;
 }
+
 #introduction article {
   flex: 1;
   position: relative;
 }
+
 #introduction h2 {
   margin-bottom: 1em;
 }
+
 #introduction p {
   margin-bottom: 0.5em;
 }
+
 #portfolio h2 {
   font-family: "Syne";
   font-weight: 700;
@@ -214,6 +233,7 @@ a:hover {
   color: #1d6154;
   text-align: center;
 }
+
 /************************
 
 
@@ -248,6 +268,21 @@ a:hover {
   border-radius: 60px;
   margin-left: 20px;
   cursor: pointer;
+}
+
+.edit,
+.edit a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit {
+  gap: 30px;
+}
+
+.edit a {
+  gap: 6px;
 }
 
 .editBtn {
@@ -287,7 +322,6 @@ a:hover {
   display: none;
   justify-content: space-between;
   font-size: 15px;
-  margin: 2%;
   width: 8%;
 }
 
@@ -306,7 +340,7 @@ a:hover {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 1000 
+  z-index: 1000;
 }
 
 .modal1,
@@ -339,6 +373,7 @@ a:hover {
   margin-top: 60px;
   margin-bottom: 46px;
 }
+
 .worksContainer {
   width: 420px;
   display: grid;
@@ -347,14 +382,17 @@ a:hover {
   grid-row-gap: 10px;
   overflow-y: auto;
 }
+
 .worksContainer img {
   width: 100%;
   height: 105px;
   object-fit: cover;
 }
+
 .worksContainer figure {
   position: relative;
 }
+
 .editer {
   font-family: "Work Sans";
   font-size: 12px;
@@ -362,6 +400,7 @@ a:hover {
   background: white;
   padding: 0;
 }
+
 .delete {
   position: absolute;
   top: 6px;
@@ -372,17 +411,20 @@ a:hover {
   font-size: 9px;
   border-radius: 2px;
 }
+
 .delete:hover {
   transform: scale(1.1);
 
   cursor: pointer;
 }
+
 .separator {
   width: 420px;
   height: 1px;
   background: #b3b3b3;
   margin: 47px auto 0 auto;
 }
+
 .closeModal2,
 .closeModal1 {
   position: absolute;
@@ -398,6 +440,7 @@ a:hover {
 .back i {
   font-weight: 600;
 }
+
 #closeImg i {
   display: none;
   font-size: 25px;
@@ -407,6 +450,7 @@ a:hover {
   right: 7rem;
   color: black;
 }
+
 #closeImg i:hover {
   cursor: pointer;
   transform: scale(1.1);
@@ -420,6 +464,7 @@ a:hover {
   border: none;
   cursor: pointer;
 }
+
 .addWork {
   font-family: "Syne";
   color: white;
@@ -432,14 +477,17 @@ a:hover {
   text-align: center;
   margin-left: 2rem;
 }
+
 .addWork:active {
   color: white;
   background: #a7a7a7;
 }
+
 .addWork:hover {
   transform: scale(1.1);
   cursor: pointer;
 }
+
 .valid {
   font-family: "Syne";
   color: white;
@@ -459,6 +507,7 @@ a:hover {
   color: #d65353;
   text-align: center;
 }
+
 #titre,
 #categorie {
   width: 420px;
@@ -466,13 +515,16 @@ a:hover {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.1);
 }
+
 #sendImg {
   display: flex;
   flex-direction: column;
 }
+
 #sendImg label {
   margin: 21px 0 10px 0;
 }
+
 .addImg {
   margin: 0 auto;
   width: 420px;
@@ -484,15 +536,18 @@ a:hover {
   justify-content: space-evenly;
   margin-bottom: 9px;
 }
+
 .addImg i {
   font-size: 46px;
   color: #b9c5cc;
   padding-top: 28px;
   background: #e8f1f6;
 }
+
 .addImg input {
   display: none;
 }
+
 .addImg label {
   color: #306685;
   background: #cbd6dc;
@@ -500,13 +555,16 @@ a:hover {
   border-radius: 50px;
   cursor: pointer;
 }
+
 .addImg p {
   padding-bottom: 19px;
   background: #e8f1f6;
 }
+
 .envoyer {
   background: #1d6154;
 }
+
 #preview {
   position: absolute;
   height: 170px;
@@ -518,6 +576,7 @@ a:hover {
   grid-template-columns: 1fr 1fr 1fr;
   grid-column-gap: 20px;
   grid-row-gap: 20px;
+  margin-bottom: 80px;
 }
 
 .gallery img {
@@ -533,6 +592,7 @@ a:hover {
   position: relative;
   margin-bottom: 3rem;
 }
+
 .filter {
   display: flex;
   justify-content: center;
@@ -557,6 +617,7 @@ a:hover {
   background: #1d6154;
   color: #ffffff;
 }
+
 /*
 .filtrer button {
   border: none;
@@ -580,12 +641,15 @@ a:hover {
   margin: auto;
   width: 50%;
 }
+
 #contact > * {
   text-align: center;
 }
+
 #contact h2 {
   margin-bottom: 20px;
 }
+
 #contact form {
   display: flex;
   flex-direction: column;
@@ -599,9 +663,11 @@ a:hover {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
+
 #contact label {
   margin: 2em 0 1em 0;
 }
+
 #contact textarea {
   border: none;
   box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
@@ -618,18 +684,22 @@ button[type="submit"] {
   height: 3rem;
   cursor: pointer;
 }
+
 button[type="submit"]:active {
   color: white;
   background: #a7a7a7;
 }
+
 #forget {
   text-align: center;
   text-decoration: underline;
   cursor: pointer;
 }
+
 footer {
   background: white;
 }
+
 .footer_login {
   margin-top: 10rem;
 }
