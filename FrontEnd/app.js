@@ -4,7 +4,7 @@ const allCategories = [];
 // Permet de stocker
 let file = "";
 
-const token = sessionStorage.getItem('accessToken');
+const token = sessionStorage.getItem("accessToken");
 const worksContainer = document.querySelector(`.worksContainer`);
 const modalContainer = document.querySelector(".modalContainer");
 const modal1 = document.querySelector(".modal1");
@@ -14,14 +14,16 @@ const selectCategory = document.getElementById("categorie");
 const submitButton = document.querySelector(".valid");
 const preview = document.querySelector("#preview");
 const login = document.getElementById("login");
-const divGallery = document.querySelector(".gallery"); 
+const divGallery = document.querySelector(".gallery");
+const filterContainer = document.querySelector(".filtres");
+
+console.log("je suis sur la home" + Date.now());
 
 function init() {
- 
   if (token) {
-    filterContainer.style.display = 'none'; 
+    filterContainer.style.display = "none";
   } else {
-    filterContainer.style.display = 'flex'; 
+    filterContainer.style.display = "flex";
   }
 }
 
@@ -31,40 +33,46 @@ async function getAllDatabaseInfo(type) {
   if (response.ok) {
     return response.json();
   } else {
-    console.error(`Erreur lors de la récupération des ${type}:`, response.statusText);
+    console.error(
+      `Erreur lors de la récupération des ${type}:`,
+      response.statusText
+    );
     return [];
   }
 }
 
 // 4. Fonction pour gérer l'affichage en mode édition
 function modalFlex() {
-  const edition = document.querySelector('.edition');
-  const editBtns = document.querySelectorAll('.editBtn');
+  const edition = document.querySelector(".edition");
+  const editBtns = document.querySelectorAll(".editBtn");
+  const filterContainer = document.querySelector(".filtres");
 
   if (token) {
-    edition.style.display = 'flex'; // Affiche la barre d'édition
-    login.innerText = 'logout'; // Change le bouton en logout
+    edition.style.display = "flex";
+    filterContainer.style.display = "none";
+    login.innerText = "logout";
 
     // Affiche tous les boutons d'édition et attache les écouteurs d'événements
-    editBtns.forEach(btn => {
-      btn.style.display = 'flex';
-      btn.addEventListener('click', openModal);
+    editBtns.forEach((btn) => {
+      btn.style.display = "flex";
+      btn.addEventListener("click", openModal);
     });
   } else {
-    edition.style.display = 'none'; // Cache la barre d'édition
-    login.innerText = 'login'; // Change le bouton en login
+    edition.style.display = "none";
+    filterContainer.style.display = "flex";
+    login.innerText = "login";
 
     // Cache tous les boutons d'édition
-    editBtns.forEach(btn => {
-      btn.style.display = 'none';
+    editBtns.forEach((btn) => {
+      btn.style.display = "none";
     });
   }
 }
 
 // 5. Fonction pour ouvrir la modale
 function openModal() {
-  modalContainer.style.display = 'flex';
-  modal1.style.display = 'flex';
+  modalContainer.style.display = "flex";
+  modal1.style.display = "flex";
   showWorksInModal(); // Met à jour la galerie dans la modale
 }
 
@@ -72,72 +80,67 @@ function openModal() {
 function showWorksInModal() {
   worksContainer.innerHTML = "";
   allWorks.forEach((work) => {
-    // Créer l'élément figure
     const figureModal = document.createElement("figure");
-    figureModal.classList.add("figure-modal"); // Ajouter une classe pour le styliser
+    figureModal.classList.add("figure-modal");
 
-    // Créer l'image
     const figureImgModal = document.createElement("img");
     figureImgModal.src = work.imageUrl;
     figureImgModal.alt = work.title;
-    figureImgModal.classList.add("modal-image"); // Ajouter une classe pour le styliser
+    figureImgModal.classList.add("modal-image");
 
-    // Créer le figcaption
     const figcaption = document.createElement("figcaption");
     figcaption.textContent = "éditer";
 
-    // Créer l'icône de la poubelle
     const trashIcon = document.createElement("i");
     trashIcon.classList.add("material-symbols-outlined", "trash-icon");
     trashIcon.textContent = "delete";
 
-    // Positionner l'icône de la poubelle en haut à droite de l'image
     trashIcon.style.position = "absolute";
     trashIcon.style.top = "5px";
     trashIcon.style.right = "5px";
     trashIcon.style.cursor = "pointer";
 
-    // Ajouter un événement pour la suppression
-    trashIcon.addEventListener("click", () => {
+    // Ajouter un événement pour la suppression sans rechargement de page
+    trashIcon.addEventListener("click", async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
       if (confirm("Voulez-vous vraiment supprimer cette image ?")) {
-        fetch(`http://localhost:5678/api/works/${work.id}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${token}`, // Assurez-vous que le token est défini
-            'Content-Type': 'application/json',
-          },
-        })
-          .then(response => {
-            if (response.ok) {
-              console.log('Image supprimée du serveur.');
+        // Envoyer la requête DELETE au serveur
+        const response = await fetch(
+          `http://localhost:5678/api/works/${work.id}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+          }
+        );
 
-              // Supprimer l'élément du DOM (de la modale)
-              figureModal.remove();
+        if (response.ok) {
+          console.log("Image supprimée du serveur.");
 
-              // Supprimer l'élément du tableau allWorks
-              const index = allWorks.findIndex(item => item.id === work.id);
-              if (index !== -1) {
-                allWorks.splice(index, 1);
+          // Supprimer l'élément du DOM (de la modale)
+          figureModal.remove();
 
-                // Régénérer la galerie principale
-                genererWorks();
-              }
-            } else {
-              console.error('Erreur lors de la suppression sur le serveur.');
-            }
-          })
-          .catch(error => {
-            console.error('Erreur réseau :', error);
-          });
+          // Supprimer l'élément du tableau allWorks
+          const index = allWorks.findIndex((item) => item.id === work.id);
+          if (index !== -1) {
+            allWorks.splice(index, 1);
+
+            // Régénérer la galerie principale sans rechargement
+            genererWorks();
+          }
+        } else {
+          console.error("Erreur lors de la suppression sur le serveur.");
+        }
       }
     });
 
-    // Assembler les éléments dans la figure
     figureModal.appendChild(figureImgModal);
-    figureModal.appendChild(trashIcon); // Ajouter l'icône de la poubelle
+    figureModal.appendChild(trashIcon);
     figureModal.appendChild(figcaption);
 
-    // Ajouter la figure au conteneur
     worksContainer.appendChild(figureModal);
   });
 }
@@ -147,10 +150,10 @@ async function init() {
   try {
     // Récupération des données
     const works = await getAllDatabaseInfo("works");
-    works.forEach(work => allWorks.push(work)); // Utiliser push au lieu de add
+    works.forEach((work) => allWorks.push(work)); // Utiliser push au lieu de add
 
     const categories = await getAllDatabaseInfo("categories");
-    categories.forEach(categorie => allCategories.push(categorie)); // Utiliser push
+    categories.forEach((categorie) => allCategories.push(categorie)); // Utiliser push
 
     // Gestion de l'affichage en mode édition
     modalFlex();
@@ -178,10 +181,10 @@ init();
 function genererWorks(filtre = 0) {
   divGallery.innerHTML = ""; // Vider la galerie existante
   const filtredWorks = filtre
-    ? allWorks.filter(work => work.categoryId === filtre)
+    ? allWorks.filter((work) => work.categoryId === filtre)
     : allWorks;
 
-  filtredWorks.forEach(work => {
+  filtredWorks.forEach((work) => {
     const worksElement = document.createElement("figure");
     worksElement.id = "figure-" + work.id;
 
@@ -211,7 +214,7 @@ function displayFilterButton() {
   allFilter.textContent = "Tous";
   fragment.appendChild(allFilter);
 
-  allCategories.forEach(categorie => {
+  allCategories.forEach((categorie) => {
     const filterButton = document.createElement("div");
     filterButton.classList.add("filter");
     filterButton.dataset.id = categorie.id;
@@ -227,7 +230,7 @@ function displayFilterButton() {
 function setFilterEvent() {
   const buttons = document.querySelectorAll(".filter");
 
-  buttons.forEach(button => {
+  buttons.forEach((button) => {
     button.addEventListener("click", (e) => {
       const clickedButton = e.target;
       const categoryId = parseInt(clickedButton.dataset.id);
@@ -251,7 +254,7 @@ login.addEventListener("click", function (e) {
 // 12. Fonction pour récupérer les catégories dans le formulaire
 function getSelectCategory() {
   selectCategory.innerHTML = ""; // Vide les options existantes
-  allCategories.forEach(categorie => {
+  allCategories.forEach((categorie) => {
     const option = document.createElement("option");
     option.textContent = categorie.name;
     option.value = categorie.id;
@@ -272,16 +275,17 @@ function initAddModale() {
     let testFormat = fileTypes.includes(tempFile.type);
 
     if (testFormat) {
-      if (tempFile.size <= 4 * 1024 * 1024) { // 4Mo
+      if (tempFile.size <= 4 * 1024 * 1024) {
+        // 4Mo
         const imageUrl = URL.createObjectURL(tempFile);
         preview.src = imageUrl;
         preview.style.display = "block"; // Affiche l'image
         file = tempFile;
 
-        submitButton.style.backgroundColor = '#1D6154';
-        closeImg.style.display = 'block';
-        labelUpload.style.display = 'none';
-        addImgDiv.style.background = 'none';
+        submitButton.style.backgroundColor = "#1D6154";
+        closeImg.style.display = "block";
+        labelUpload.style.display = "none";
+        addImgDiv.style.background = "none";
 
         closeImg.addEventListener("click", resetForm);
       } else {
@@ -295,14 +299,15 @@ function initAddModale() {
   });
 
   function resetForm() {
-    labelUpload.style.display = 'block';
+    labelUpload.style.display = "block";
     preview.src = "";
     preview.style.display = "none";
     file = "";
     imgInput.value = "";
-    submitButton.style.backgroundColor = '#A7A7A7';
-    closeImg.style.display = 'none';
-    addImgDiv.style.background = '#E8F1F6';
+    submitButton.style.backgroundColor = "#A7A7A7";
+    closeImg.style.display = "none";
+    addImgDiv.style.background = "#E8F1F6";
+    upTitle.value = "";
   }
 
   // Requête POST pour ajouter un nouveau travail
@@ -314,15 +319,15 @@ function initAddModale() {
       formData.append("title", upTitle.value.trim());
       formData.append("category", selectCategory.value);
 
-      const newWork = await AddWork(formData);
+      const newWork = await addWork(formData);
       if (newWork) {
-        modal2.style.display = 'none';
-        modalContainer.style.display = 'none';
+        modal2.style.display = "none";
+        modalContainer.style.display = "none";
         alert("Votre projet a bien été ajouté.");
         allWorks.push(newWork); // Utiliser push au lieu de add
         genererWorks();
         resetForm();
-        upTitle.value = "";
+        // upTitle.value = "";
         showWorksInModal(); // Met à jour la galerie dans la modale
       }
     } else {
@@ -339,23 +344,23 @@ function initModalNavigation() {
   const backButton = document.querySelector(`.back`);
 
   addWorkButton.addEventListener("click", () => {
-    modal1.style.display = 'none';
-    modal2.style.display = 'flex';
+    modal1.style.display = "none";
+    modal2.style.display = "flex";
   });
 
   closeModal1.addEventListener("click", closeModal);
   closeModal2.addEventListener("click", closeModal);
   backButton.addEventListener("click", () => {
-    modal2.style.display = 'none';
-    modal1.style.display = 'flex';
+    modal2.style.display = "none";
+    modal1.style.display = "flex";
   });
 }
 
 // 15. Fonction pour fermer la modale
 function closeModal() {
-  modalContainer.style.display = 'none';
-  modal1.style.display = 'none';
-  modal2.style.display = 'none';
+  modalContainer.style.display = "none";
+  modal1.style.display = "none";
+  modal2.style.display = "none";
 }
 
 // 16. Fermeture de la modale en cliquant en dehors
@@ -377,7 +382,7 @@ async function delWork(id) {
 }
 
 // 18. Fonction pour ajouter un travail
-async function AddWork(formData) {
+async function addWork(formData) {
   const response = await fetch("http://localhost:5678/api/works", {
     method: "POST",
     headers: {
@@ -386,15 +391,9 @@ async function AddWork(formData) {
     body: formData,
   });
   if (response.ok) {
-    return response.json();
+    //  return response.json();
   } else {
     alert("Erreur lors de l'ajout du projet");
     return null;
   }
 }
-
-// 19. Fonction de confirmation pour suppression
-function confirmDelWork(workId) {
-  return confirm("Êtes-vous sûr de vouloir supprimer ce projet ?");
-}
-

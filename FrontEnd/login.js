@@ -18,18 +18,19 @@ form.addEventListener("submit", async (e) => {
     // Affiche un indicateur de chargement
     toggleLoading(true);
 
-    // Envoie une requête POST à l'API pour se connecter avec les informations d'identification de l'utilisateur
     const response = await fetch("http://localhost:5678/api/users/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
+
     // Si la réponse est réussie
     if (response.ok) {
       const data = await response.json();
       sessionStorage.setItem("accessToken", data.token);
       window.location.href = "index.html"; 
     } else {
+      
       // Gestion des erreurs spécifiques en fonction du code d'erreur
       if (response.status === 401) {
         displayError("Identifiant ou mot de passe incorrect.");
