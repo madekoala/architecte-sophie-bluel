@@ -262,6 +262,19 @@ function getSelectCategory() {
   });
 }
 
+// Fonction de validation pour changer la couleur du bouton d'ajout
+function validateForm() {
+  const title = upTitle.value.trim();
+  const category = selectCategory.value;
+  
+  // Vérifier si tous les champs sont remplis et si un fichier est sélectionné
+  if (title && category && file) {
+    submitButton.style.backgroundColor = "#1D6154"; // Vert quand tout est rempli
+  } else {
+    submitButton.style.backgroundColor = "#A7A7A7"; // Gris par défaut
+  }
+}
+
 // 13. Fonction pour initialiser la modale d'ajout
 function initAddModale() {
   const imgInput = document.querySelector("#uploadImg");
@@ -275,17 +288,17 @@ function initAddModale() {
     let testFormat = fileTypes.includes(tempFile.type);
 
     if (testFormat) {
-      if (tempFile.size <= 4 * 1024 * 1024) {
-        // 4Mo
+      if (tempFile.size <= 4 * 1024 * 1024) { // 4Mo
         const imageUrl = URL.createObjectURL(tempFile);
         preview.src = imageUrl;
         preview.style.display = "block"; // Affiche l'image
         file = tempFile;
 
-        submitButton.style.backgroundColor = "#1D6154";
         closeImg.style.display = "block";
         labelUpload.style.display = "none";
         addImgDiv.style.background = "none";
+
+        validateForm(); // Valide le formulaire à chaque fois que l'image change
 
         closeImg.addEventListener("click", resetForm);
       } else {
@@ -298,17 +311,9 @@ function initAddModale() {
     }
   });
 
-  function resetForm() {
-    labelUpload.style.display = "block";
-    preview.src = "";
-    preview.style.display = "none";
-    file = "";
-    imgInput.value = "";
-    submitButton.style.backgroundColor = "#A7A7A7";
-    closeImg.style.display = "none";
-    addImgDiv.style.background = "#E8F1F6";
-    upTitle.value = "";
-  }
+  // Ajouter des écouteurs sur les champs du formulaire pour validation
+  upTitle.addEventListener("input", validateForm);  // Quand le titre change
+  selectCategory.addEventListener("change", validateForm); // Quand la catégorie change
 
   // Requête POST pour ajouter un nouveau travail
   submitButton.addEventListener("click", async (e) => {
@@ -327,7 +332,6 @@ function initAddModale() {
         allWorks.push(newWork); // Utiliser push au lieu de add
         genererWorks();
         resetForm();
-        // upTitle.value = "";
         showWorksInModal(); // Met à jour la galerie dans la modale
       }
     } else {
@@ -391,7 +395,7 @@ async function addWork(formData) {
     body: formData,
   });
   if (response.ok) {
-    //  return response.json();
+    return response.json();
   } else {
     alert("Erreur lors de l'ajout du projet");
     return null;
