@@ -10,7 +10,7 @@ form.addEventListener("submit", async (e) => {
 
   // Vérifie que l'email et le mot de passe ne sont pas vides
   if (!email || !password) {
-    displayError("L'email et le mot de passe doivent être renseignés.");
+    displayError("Identifiant ou mot de passe incorrect.");
     return;
   }
 
@@ -30,16 +30,15 @@ form.addEventListener("submit", async (e) => {
       sessionStorage.setItem("accessToken", data.token);
       window.location.href = "index.html"; 
     } else {
-      
       // Gestion des erreurs spécifiques en fonction du code d'erreur
       if (response.status === 401) {
         displayError("Identifiant ou mot de passe incorrect.");
       } else {
-        displayError("Une erreur est survenue. Veuillez réessayer.");
+        displayError("Identifiant ou mot de passe incorrect.");
       }
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     // Gestion des erreurs réseau ou autres exceptions
     displayError("Erreur réseau. Veuillez vérifier votre connexion.");
   } finally {
@@ -72,9 +71,9 @@ function toggleLoading(isLoading) {
   const submitButton = document.querySelector('input[type="submit"]');
   if (isLoading) {
     submitButton.disabled = true;
-    submitButton.innerText = "Connexion en cours...";
+    submitButton.value = "Connexion en cours...";
   } else {
     submitButton.disabled = false;
-    submitButton.innerText = "Se connecter";
+    submitButton.value = "Se connecter";
   }
 }

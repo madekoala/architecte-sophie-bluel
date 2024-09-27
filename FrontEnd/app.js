@@ -27,16 +27,18 @@ function init() {
   }
 }
 
-// 3. Fonction pour récupérer les données de la BDD
+// 3. Fonction pour récupérer les données de la BDD 
 async function getAllDatabaseInfo(type) {
-  const response = await fetch("http://localhost:5678/api/" + type);
-  if (response.ok) {
-    return response.json();
-  } else {
-    console.error(
-      `Erreur lors de la récupération des ${type}:`,
-      response.statusText
-    );
+  try {
+    const response = await fetch("http://localhost:5678/api/" + type);
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error(`Erreur lors de la récupération des ${type}:`, response.statusText);
+      return [];
+    }
+  } catch (error) {
+    console.error(`Erreur lors de la récupération des ${type}:`, error);
     return [];
   }
 }
@@ -100,39 +102,30 @@ function showWorksInModal() {
     trashIcon.style.right = "5px";
     trashIcon.style.cursor = "pointer";
 
-    // Ajouter un événement pour la suppression sans rechargement de page
+    // Ajouter un événement pour la suppression 
     trashIcon.addEventListener("click", async (event) => {
       event.preventDefault();
       event.stopPropagation();
       if (confirm("Voulez-vous vraiment supprimer cette image ?")) {
-        // Envoyer la requête DELETE au serveur
-        const response = await fetch(
-          `http://localhost:5678/api/works/${work.id}`,
-          {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
+        try {
+          const status = await delWork(work.id);
+          if (status === 200) {
+            console.log("Image supprimée du serveur.");
+
+            figureModal.remove(); // Supprimer l'élément du DOM
+
+            const index = allWorks.findIndex((item) => item.id === work.id);
+            if (index !== -1) {
+              allWorks.splice(index, 1);
+
+              genererWorks(); // Régénérer la galerie principale
+            }
+          } else {
+            alert("Erreur lors de la suppression de l'image.");
           }
-        );
-
-        if (response.ok) {
-          console.log("Image supprimée du serveur.");
-
-          // Supprimer l'élément du DOM (de la modale)
-          figureModal.remove();
-
-          // Supprimer l'élément du tableau allWorks
-          const index = allWorks.findIndex((item) => item.id === work.id);
-          if (index !== -1) {
-            allWorks.splice(index, 1);
-
-            // Régénérer la galerie principale sans rechargement
-            genererWorks();
-          }
-        } else {
-          console.error("Erreur lors de la suppression sur le serveur.");
+        } catch (error) {
+          console.error("Erreur lors de la suppression de l'image:", error);
+          alert("Erreur lors de la suppression de l'image.");
         }
       }
     });
@@ -145,15 +138,15 @@ function showWorksInModal() {
   });
 }
 
-// 7. Fonction pour initialiser l'application
+// 7. Fonction pour initialiser l'application 
 async function init() {
   try {
     // Récupération des données
     const works = await getAllDatabaseInfo("works");
-    works.forEach((work) => allWorks.push(work)); // Utiliser push au lieu de add
+    works.forEach((work) => allWorks.push(work)); 
 
     const categories = await getAllDatabaseInfo("categories");
-    categories.forEach((categorie) => allCategories.push(categorie)); // Utiliser push
+    categories.forEach((categorie) => allCategories.push(categorie));
 
     // Gestion de l'affichage en mode édition
     modalFlex();
@@ -202,14 +195,14 @@ function genererWorks(filtre = 0) {
   });
 }
 
-// 9. Fonction pour afficher les boutons de filtre
+// 9. Fonction pour afficher les boutons de filtre avec gestion de la classe active
 function displayFilterButton() {
   const divButtons = document.querySelector(".filtres");
   divButtons.innerHTML = ""; // Nettoie les boutons existants
   const fragment = document.createDocumentFragment();
 
   const allFilter = document.createElement("div");
-  allFilter.classList.add("active", "filter");
+  allFilter.classList.add("filter");
   allFilter.dataset.id = 0;
   allFilter.textContent = "Tous";
   fragment.appendChild(allFilter);
@@ -224,9 +217,12 @@ function displayFilterButton() {
 
   divButtons.appendChild(fragment);
   setFilterEvent();
+
+  // Appliquer la classe "active-filter" au bouton "Tous" par défaut
+  allFilter.classList.add("active-filter");
 }
 
-// 10. Fonction pour gérer les événements de filtre
+// 10. Fonction pour gérer les événements de filtre et la classe active
 function setFilterEvent() {
   const buttons = document.querySelectorAll(".filter");
 
@@ -234,10 +230,15 @@ function setFilterEvent() {
     button.addEventListener("click", (e) => {
       const clickedButton = e.target;
       const categoryId = parseInt(clickedButton.dataset.id);
-      genererWorks(categoryId);
 
-      document.querySelector(".filter.active").classList.remove("active");
-      clickedButton.classList.add("active");
+      // Supprimer la classe active du bouton actuellement actif
+      document.querySelector(".filter.active-filter").classList.remove("active-filter");
+
+      // Ajouter la classe active au bouton cliqué
+      clickedButton.classList.add("active-filter");
+
+      // Générer les travaux filtrés
+      genererWorks(categoryId);
     });
   });
 }
@@ -254,6 +255,16 @@ login.addEventListener("click", function (e) {
 // 12. Fonction pour récupérer les catégories dans le formulaire
 function getSelectCategory() {
   selectCategory.innerHTML = ""; // Vide les options existantes
+
+  // Ajouter une option vide par défaut
+  const defaultOption = document.createElement("option");
+  defaultOption.textContent = "";
+  defaultOption.value = "";
+  defaultOption.disabled = true;
+  defaultOption.selected = true;
+  selectCategory.appendChild(defaultOption);
+
+  // Ajouter les catégories disponibles
   allCategories.forEach((categorie) => {
     const option = document.createElement("option");
     option.textContent = categorie.name;
@@ -315,7 +326,7 @@ function initAddModale() {
   upTitle.addEventListener("input", validateForm);  // Quand le titre change
   selectCategory.addEventListener("change", validateForm); // Quand la catégorie change
 
-  // Requête POST pour ajouter un nouveau travail
+  // Requête POST pour ajouter un nouveau travail avec try-catch
   submitButton.addEventListener("click", async (e) => {
     e.preventDefault();
     if (file && upTitle.value.trim()) {
@@ -324,15 +335,22 @@ function initAddModale() {
       formData.append("title", upTitle.value.trim());
       formData.append("category", selectCategory.value);
 
-      const newWork = await addWork(formData);
-      if (newWork) {
-        modal2.style.display = "none";
-        modalContainer.style.display = "none";
-        alert("Votre projet a bien été ajouté.");
-        allWorks.push(newWork); // Utiliser push au lieu de add
-        genererWorks();
-        resetForm();
-        showWorksInModal(); // Met à jour la galerie dans la modale
+      try {
+        const newWork = await addWork(formData);
+        if (newWork) {
+          modal2.style.display = "none";
+          modalContainer.style.display = "none";
+          alert("Votre projet a bien été ajouté.");
+          allWorks.push(newWork); // Utiliser push au lieu de add
+          genererWorks();
+          resetForm();
+          showWorksInModal(); // Met à jour la galerie dans la modale
+        } else {
+          alert("Erreur lors de l'ajout du projet.");
+        }
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du projet:", error);
+        alert("Erreur lors de l'ajout du projet.");
       }
     } else {
       alert("Veuillez remplir tous les champs et ajouter une image.");
@@ -374,30 +392,45 @@ window.addEventListener("click", function (e) {
   }
 });
 
-// 17. Fonction pour supprimer un travail
+// 17. Fonction pour supprimer un travail avec try-catch
 async function delWork(id) {
-  const response = await fetch("http://localhost:5678/api/works/" + id, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.status;
+  try {
+    const response = await fetch("http://localhost:5678/api/works/" + id, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return response.status;
+    } else {
+      console.error("Erreur lors de la suppression:", response.statusText);
+      return response.status;
+    }
+  } catch (error) {
+    console.error("Erreur lors de la suppression:", error);
+    return 500; // Code erreur par défaut
+  }
 }
 
-// 18. Fonction pour ajouter un travail
+// 18. Fonction pour ajouter un travail avec try-catch
 async function addWork(formData) {
-  const response = await fetch("http://localhost:5678/api/works", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-  if (response.ok) {
-    return response.json();
-  } else {
-    alert("Erreur lors de l'ajout du projet");
+  try {
+    const response = await fetch("http://localhost:5678/api/works", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    if (response.ok) {
+      return await response.json();
+    } else {
+      console.error("Erreur lors de l'ajout:", response.statusText);
+      return null;
+    }
+  } catch (error) {
+    console.error("Erreur lors de l'ajout:", error);
     return null;
   }
 }

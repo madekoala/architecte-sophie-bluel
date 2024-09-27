@@ -628,6 +628,12 @@ a:hover {
   color: #ffffff;
 }
 
+.active-filter {
+  background-color: #1d6154;
+  color: #ffffff;
+  border: solid #1d6154 1px;
+}
+
 /*
 .filtrer button {
   border: none;
